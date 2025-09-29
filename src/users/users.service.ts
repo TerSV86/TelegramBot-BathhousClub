@@ -23,7 +23,11 @@ export class UsersService {
     }
 
     findAll() {
-        return `This action returns all users`
+        return 'kjlkj'
+    }
+
+    findAllUserIds() {
+        return this.userRepository.find({ select: ['id'] })
     }
 
     findOne(id: number) {

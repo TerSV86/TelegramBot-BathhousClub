@@ -1,7 +1,15 @@
 import { Get, Post, Body, Param, Delete } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
-import { Action, Ctx, Hears, InjectBot, On, Update } from 'nestjs-telegraf'
+import {
+    Action,
+    Ctx,
+    Hears,
+    InjectBot,
+    On,
+    Start,
+    Update,
+} from 'nestjs-telegraf'
 import { Context, Telegraf } from 'telegraf'
 import { button } from '../buttons/app.buttons'
 
@@ -11,6 +19,18 @@ export class UsersUpdate {
         @InjectBot() private readonly bot: Telegraf<Context>,
         private readonly usersService: UsersService,
     ) {}
+
+    @Start()
+    async startBot(@Ctx() ctx: Context) {
+        console.log('start')
+        if ('chat' in ctx) {
+            const user = ctx.chat as unknown as CreateUserDto
+            await this.bot.telegram.sendMessage(
+                user.id,
+                `Здорово что ты участвуешь в опросах. Опросы будут приходить в этот чат каждый Пн., Вт., Пт., Сб в 21:00`,
+            )
+        }
+    }
 
     @On('new_chat_members')
     async onNewChatMembers(@Ctx() ctx: Context) {
@@ -28,20 +48,6 @@ export class UsersUpdate {
                 await ctx.reply(
                     `${newMember.first_name} добро пожаловать в BathhousClub. Для участия в опросах нажми кнопку "Старт"`,
                     button(),
-                )
-                await ctx.telegram.sendMessage(
-                    newMember.id,
-                    `Привет, ${newMember.first_name}! Для участия в опросах нажми кнопку "Старт"`,
-                    // {
-                    //     reply_markup: Markup.inlineKeyboard([
-                    //         [
-                    //             Markup.button.url(
-                    //                 'Старт',
-                    //                 'https://t.me/BathHousTRG_Bot?start',
-                    //             ),
-                    //         ],
-                    //     ]),
-                    // },
                 )
             })
 
