@@ -29,6 +29,7 @@ export class UsersUpdate {
                 user.id,
                 `Здорово что ты участвуешь в опросах. Опросы будут приходить в этот чат каждый Пн., Вт., Пт., Сб в 21:00`,
             )
+            this.usersService.updateUserIsActive(user.id)
         }
     }
 

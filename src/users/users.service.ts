@@ -34,8 +34,10 @@ export class UsersService {
         return `This action returns a #${id} user`
     }
 
-    update(id: number) {
-        return `This action updates a #${id} user`
+    async updateUserIsActive(id: string) {
+        const user = await this.userRepository.findOne({ where: { id } })
+        user.is_Active = !user.is_Active
+        return this.userRepository.save(user)
     }
 
     async remove(id: string) {
