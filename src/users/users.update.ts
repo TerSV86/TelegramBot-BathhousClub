@@ -1,19 +1,9 @@
-import { Get, Post, Body, Patch, Param, Delete, Header } from '@nestjs/common'
+import { Get, Post, Body, Param, Delete } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
-import { UpdateUserDto } from './dto/update-user.dto'
-import {
-    Action,
-    Command,
-    Ctx,
-    Hears,
-    InjectBot,
-    On,
-    Start,
-    Update,
-} from 'nestjs-telegraf'
-import { Context, Markup, Telegraf } from 'telegraf'
-import { actionButtons, button } from '../buttons/app.buttons'
+import { Action, Ctx, Hears, InjectBot, On, Update } from 'nestjs-telegraf'
+import { Context, Telegraf } from 'telegraf'
+import { button } from '../buttons/app.buttons'
 
 @Update()
 export class UsersUpdate {
@@ -26,13 +16,13 @@ export class UsersUpdate {
     async onNewChatMembers(@Ctx() ctx: Context) {
         // если в апдейте есть новые участники
         if ('new_chat_members' in ctx.message) {
-            const arrNewMember = ctx.message.new_chat_members as [
+            const arrNewMember = ctx.message.new_chat_members as unknown as [
                 CreateUserDto & {
                     is_bot?: boolean
                 },
             ]
             arrNewMember.forEach(async (newMember) => {
-                if (newMember.is_bot) return ctx.banChatMember(newMember.id) // ботов кикаем
+                if (newMember.is_bot) return ctx.banChatMember(+newMember.id) // ботов кикаем
 
                 this.usersService.create(newMember as CreateUserDto)
                 await ctx.reply(
@@ -63,7 +53,8 @@ export class UsersUpdate {
     async onLeftChatMember(@Ctx() ctx: Context) {
         console.log('left')
         if ('left_chat_member' in ctx.message) {
-            const leftMember = ctx.message.left_chat_member as CreateUserDto & {
+            const leftMember = ctx.message
+                .left_chat_member as unknown as CreateUserDto & {
                 is_bot: true
             }
             if (leftMember.is_bot) return
@@ -98,13 +89,8 @@ export class UsersUpdate {
         return this.usersService.findOne(+id)
     }
 
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-        return this.usersService.update(+id, updateUserDto)
-    }
-
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.usersService.remove(+id)
+        return this.usersService.remove(id)
     }
 }

@@ -1,6 +1,5 @@
-import { HttpException, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
-import { UpdateUserDto } from './dto/update-user.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './entities/user.entity'
@@ -31,11 +30,11 @@ export class UsersService {
         return `This action returns a #${id} user`
     }
 
-    update(id: number, updateUserDto: UpdateUserDto) {
+    update(id: number) {
         return `This action updates a #${id} user`
     }
 
-    async remove(id: number) {
+    async remove(id: string) {
         const existingId = await this.userRepository.findOne({
             where: { id },
         })

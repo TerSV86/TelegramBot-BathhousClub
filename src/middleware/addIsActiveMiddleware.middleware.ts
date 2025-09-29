@@ -27,7 +27,6 @@ export class AddIsActiveMiddleware {
             } else {
                 await next() // Внимание!!! Если не перезать, то update дальше не идет. ВСЕ ПЕРЕСТАЕТ РАБОТАТЬ.
             }
-
         }
     }
 }

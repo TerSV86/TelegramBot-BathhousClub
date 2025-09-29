@@ -1,30 +1,31 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+    Column,
+    CreateDateColumn,
+    Entity,
+    PrimaryColumn,
+    PrimaryGeneratedColumn,
+} from 'typeorm'
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  bdId: number;
+    @PrimaryGeneratedColumn()
+    bdId: number
 
-  @Column()
-  id: number;
+    @PrimaryColumn({ type: 'bigint' })
+    id: string
 
-  @Column()
-  first_name: string;
+    @Column()
+    first_name: string
 
-  @Column()
-  last_name: string;
+    @Column()
+    last_name: string
 
-  @Column()
-  is_Active: boolean;
+    @Column()
+    is_Active: boolean
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @CreateDateColumn()
+    createdAt: Date
 
-  @CreateDateColumn()
-  updatedAt: Date;
+    @CreateDateColumn()
+    updatedAt: Date
 }

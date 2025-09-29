@@ -4,7 +4,6 @@ import { TelegrafModule } from 'nestjs-telegraf'
 import * as LocalSession from 'telegraf-session-local'
 import { BotActionsService } from './bot/bot.update'
 import { BotActionsUpdate } from './bot/bot-actions.update'
-import { BotUpdate } from './bot/bot-actions.service'
 import { ScheduleModule } from '@nestjs/schedule'
 import { TasksService } from './tasks/tasks.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -53,7 +52,6 @@ const sessions = new LocalSession({ database: 'session_db.json' })
     providers: [
         BotActionsService,
         BotActionsUpdate,
-        BotUpdate,
         TasksService,
         AddIsActiveMiddleware,
     ],
