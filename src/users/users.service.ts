@@ -30,6 +30,10 @@ export class UsersService {
         return this.userRepository.find({ select: ['id'] })
     }
 
+    findUser(id: string) {
+        return this.userRepository.findOne({ where: { id } })
+    }
+
     findOne(id: number) {
         return `This action returns a #${id} user`
     }

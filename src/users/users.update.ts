@@ -1,15 +1,7 @@
 import { Get, Post, Body, Param, Delete } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
-import {
-    Action,
-    Ctx,
-    Hears,
-    InjectBot,
-    On,
-    Start,
-    Update,
-} from 'nestjs-telegraf'
+import { Ctx, Hears, InjectBot, On, Start, Update } from 'nestjs-telegraf'
 import { Context, Telegraf } from 'telegraf'
 import { button } from '../buttons/app.buttons'
 
@@ -25,18 +17,20 @@ export class UsersUpdate {
         console.log('start')
         if ('chat' in ctx) {
             const user = ctx.chat as unknown as CreateUserDto
+            const userId = user.id.toString()
             await this.bot.telegram.sendMessage(
-                user.id,
+                userId,
                 `Здорово что ты участвуешь в опросах. Опросы будут приходить в этот чат каждый Пн., Вт., Пт., Сб в 21:00`,
             )
-            this.usersService.updateUserIsActive(user.id)
+            this.usersService.updateUserIsActive(userId)
+            console.log(typeof userId)
         }
     }
 
     @On('new_chat_members')
     async onNewChatMembers(@Ctx() ctx: Context) {
-        console.log('new');
-        
+        console.log('new')
+
         // если в апдейте есть новые участники
         if (ctx.message && 'new_chat_members' in ctx.message) {
             const arrNewMember = ctx.message.new_chat_members as unknown as [
@@ -53,8 +47,6 @@ export class UsersUpdate {
                     button(),
                 )
             })
-
-            await ctx.reply('Добро пожаловать!')
         }
     }
 

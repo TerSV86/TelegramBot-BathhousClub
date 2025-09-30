@@ -1,19 +1,19 @@
-import { Get, Post, Body, Patch, Param, Delete } from '@nestjs/common'
+import { Get, Body, Patch, Param, Delete } from '@nestjs/common'
 import { BathhousService } from './bathhous.service'
-import { CreateBathhousDto } from './dto/create-bathhous.dto'
 import { UpdateBathhousDto } from './dto/update-bathhous.dto'
 import { Action, Ctx, InjectBot, Update } from 'nestjs-telegraf'
 import { Context, Telegraf } from 'telegraf'
-import { CreateUserDto } from 'src/users/dto/create-user.dto'
 import { Update as UpdateContext } from 'telegraf/typings/core/types/typegram'
 import { getBathhousDay } from 'src/utilits/get-bathhousday.utils'
+import { SchedulerRegistry } from '@nestjs/schedule'
 
 @Update()
 export class BathhousUpdate {
     constructor(
         @InjectBot() private readonly bot: Telegraf<Context>,
         private readonly bathhousService: BathhousService,
-    ) { }
+        private schedulerRegistry: SchedulerRegistry,
+    ) {}
 
     @Action('yes')
     async yesAction(@Ctx() ctx: Context) {
@@ -21,12 +21,19 @@ export class BathhousUpdate {
             const user = (ctx.update as UpdateContext.CallbackQueryUpdate)
                 .callback_query.from
             const date = getBathhousDay()
+            const userId = user.id.toString()
             const bathhous = {
-                userId: String(user.id),
+                userId,
                 date,
                 is_Active: true,
             }
-            console.log(bathhous)
+            await ctx.answerCbQuery('Мы будем рады тебя видеть')
+            console.log('Action', bathhous)
+            const jobs = this.schedulerRegistry.getCronJobs()
+            console.log('🟡 Все доступные cron-задачи:', [...jobs.keys()])
+            const task = await this.schedulerRegistry.getCronJob(userId)
+            task.stop()
+
             return this.bathhousService.create(bathhous)
         }
     }
@@ -38,11 +45,20 @@ export class BathhousUpdate {
             const user = (ctx.update as UpdateContext.CallbackQueryUpdate)
                 .callback_query.from
             const date = getBathhousDay()
+            const userId = user.id.toString()
             const bathhous = {
-                userId: String(user.id),
+                userId,
                 date,
                 is_Active: false,
             }
+            if (
+                'data' in ctx.update.callback_query &&
+                'on' === ctx.update.callback_query.data
+            ) {
+                const task = this.schedulerRegistry.getCronJob(userId)
+                task.stop()
+            }
+
             return this.bathhousService.create(bathhous)
         }
     }
