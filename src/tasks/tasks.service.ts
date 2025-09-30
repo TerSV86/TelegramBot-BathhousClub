@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
 import { InjectBot } from 'nestjs-telegraf'
 import { actionButtons } from 'src/buttons/app.buttons'
@@ -11,7 +10,6 @@ import { Context, Telegraf } from 'telegraf'
 export class TasksService {
     constructor(
         @InjectBot() private readonly bot: Telegraf<Context>,
-        private configService: ConfigService,
         private readonly usersService: UsersService,
     ) {}
 

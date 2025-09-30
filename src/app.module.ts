@@ -9,6 +9,7 @@ import { TasksService } from './tasks/tasks.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UsersModule } from './users/users.module'
 import { AddIsActiveMiddleware } from './middleware/addIsActiveMiddleware.middleware'
+import { BathhousModule } from './bathhous/bathhous.module';
 
 const sessions = new LocalSession({ database: 'session_db.json' })
 
@@ -48,6 +49,7 @@ const sessions = new LocalSession({ database: 'session_db.json' })
             }),
         }),
         UsersModule,
+        BathhousModule,
     ],
     providers: [
         BotActionsService,

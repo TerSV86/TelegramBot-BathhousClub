@@ -17,8 +17,8 @@ export class AddIsActiveMiddleware {
             let count: number = 0
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             count++
-            console.log('middle', count, ctx.message)
-            if ('new_chat_members' in ctx.message) {
+            console.log('middle', count, ctx)
+            if (ctx.message && 'new_chat_members' in ctx.message) {
                 ctx.message.new_chat_members.map(
                     (ncm) => ((ncm as TNewChatMember).is_Active = false),
                 )

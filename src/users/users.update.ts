@@ -35,8 +35,10 @@ export class UsersUpdate {
 
     @On('new_chat_members')
     async onNewChatMembers(@Ctx() ctx: Context) {
+        console.log('new');
+        
         // если в апдейте есть новые участники
-        if ('new_chat_members' in ctx.message) {
+        if (ctx.message && 'new_chat_members' in ctx.message) {
             const arrNewMember = ctx.message.new_chat_members as unknown as [
                 CreateUserDto & {
                     is_bot?: boolean
@@ -59,7 +61,7 @@ export class UsersUpdate {
     @On('left_chat_member')
     async onLeftChatMember(@Ctx() ctx: Context) {
         console.log('left')
-        if ('left_chat_member' in ctx.message) {
+        if (ctx.message && 'left_chat_member' in ctx.message) {
             const leftMember = ctx.message
                 .left_chat_member as unknown as CreateUserDto & {
                 is_bot: true
@@ -69,11 +71,6 @@ export class UsersUpdate {
             this.usersService.remove(leftMember.id)
             await ctx.reply('Нам будет тебя не хватать')
         }
-    }
-
-    @Action('Yes')
-    async openChat(ctx: Context) {
-        await ctx.reply('Yes Yes')
     }
 
     @Hears('Старт')

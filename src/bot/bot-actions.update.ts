@@ -6,7 +6,7 @@ import { Context } from 'telegraf'
 export class BotActionsUpdate {
     constructor(private readonly actionsService: BotActionsService) {}
 
-    @Action('yes')
+   /*  @Action('yes')
     async handleYes(@Ctx() ctx: Context) {
         await this.actionsService.handleYes(ctx)
         await ctx.answerCbQuery('Мы будем рады тебя видеть')
@@ -22,5 +22,5 @@ export class BotActionsUpdate {
     async handleUndecided(@Ctx() ctx: Context) {
         await this.actionsService.hendleUndecided(ctx)
         await ctx.answerCbQuery('Почему ты такой не решительный?')
-    }
+    } */
 }
