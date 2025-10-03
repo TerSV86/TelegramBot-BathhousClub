@@ -1,31 +1,28 @@
 import { Injectable } from '@nestjs/common'
+import { MyContext } from 'src/types/MyContext'
+import { CreateUserDto } from 'src/users/dto/create-user.dto'
 import { Context, MiddlewareFn } from 'telegraf'
-
-type TNewChatMember = {
-    id: number
-    is_bot: boolean
-    first_name: string
-    last_name: string
-    is_Active: boolean
-    language_code: string
-}
 
 @Injectable()
 export class AddIsActiveMiddleware {
-    getMiddleware(): MiddlewareFn<Context> {
+    getMiddleware(): MiddlewareFn<MyContext> {
         return async (ctx: Context, next) => {
-            let count: number = 0
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            count++
-            console.log('middle', count, ctx)
+            console.log('middle', ctx)
             if (ctx.message && 'new_chat_members' in ctx.message) {
-                ctx.message.new_chat_members.map(
-                    (ncm) => ((ncm as TNewChatMember).is_Active = false),
+                const dtos: CreateUserDto[] = ctx.message.new_chat_members.map(
+                    (new_chat_member) => ({
+                        id: String(new_chat_member.id),
+                        is_bot: new_chat_member.is_bot,
+                        first_name: new_chat_member.first_name,
+                        last_name: new_chat_member.last_name ?? '',
+                        is_Active: false,
+                    }),
                 )
                 console.log('Middleware сработало, ctx.isActive:', ctx.message)
+                ctx.state.createUserDto = dtos
                 await next()
             } else {
-                await next() // Внимание!!! Если не перезать, то update дальше не идет. ВСЕ ПЕРЕСТАЕТ РАБОТАТЬ.
+                await next() // Внимание!!! Если не передать, то update дальше не идет. ВСЕ ПЕРЕСТАЕТ РАБОТАТЬ.
             }
         }
     }
