@@ -4,6 +4,8 @@ import { CreateUserDto } from './dto/create-user.dto'
 import { Ctx, Hears, InjectBot, On, Start, Update } from 'nestjs-telegraf'
 import { Context, Telegraf } from 'telegraf'
 import { button } from '../buttons/app.buttons'
+import { sendMsg } from 'src/utilits/sendMsg.utels'
+import { msgCreatUser, msgDeleteUser, msgInitUser } from 'src/data/constants'
 
 @Update()
 export class UsersUpdate {
@@ -14,55 +16,30 @@ export class UsersUpdate {
 
     @Start()
     async startBot(@Ctx() ctx: Context) {
-        console.log('start')
-        if ('chat' in ctx) {
-            const user = ctx.chat as unknown as CreateUserDto
-            const userId = user.id.toString()
-            await this.bot.telegram.sendMessage(
-                userId,
-                `Здорово что ты участвуешь в опросах. Опросы будут приходить в этот чат каждый Пн., Вт., Пт., Сб в 21:00`,
-            )
-            this.usersService.updateUserIsActive(userId)
-            console.log(typeof userId)
+        if (ctx.chat) {
+            await sendMsg(ctx, msgInitUser)
+            this.usersService.updateUserIsActive(ctx.state.user)
         }
     }
 
     @On('new_chat_members')
-    async onNewChatMembers(@Ctx() ctx: Context) {
-        console.log('new')
-
+    async onCreateUsers(@Ctx() ctx: Context) {
         // если в апдейте есть новые участники
-        if (ctx.message && 'new_chat_members' in ctx.message) {
-            const arrNewMember = ctx.message.new_chat_members as unknown as [
-                CreateUserDto & {
-                    is_bot?: boolean
-                },
-            ]
-            arrNewMember.forEach(async (newMember) => {
-                if (newMember.is_bot) return ctx.banChatMember(+newMember.id) // ботов кикаем
-
-                this.usersService.create(newMember as CreateUserDto)
-                await ctx.reply(
-                    `${newMember.first_name} добро пожаловать в BathhousClub. Для участия в опросах нажми кнопку "Старт"`,
-                    button(),
-                )
+        if (ctx.state) {
+            const arrUsers = ctx.state.users
+            arrUsers.forEach(async (user: CreateUserDto) => {
+                if (user.is_bot) return ctx.banChatMember(+user.id) // ботов кикаем
+                this.usersService.create(user)
+                await sendMsg(ctx, msgCreatUser, user.first_name, button)
             })
         }
     }
 
     @On('left_chat_member')
     async onLeftChatMember(@Ctx() ctx: Context) {
-        console.log('left')
-        if (ctx.message && 'left_chat_member' in ctx.message) {
-            const leftMember = ctx.message
-                .left_chat_member as unknown as CreateUserDto & {
-                is_bot: true
-            }
-            if (leftMember.is_bot) return
-            // Сюда написать логику удаления пользователя из бд
-            this.usersService.remove(leftMember.id)
-            await ctx.reply('Нам будет тебя не хватать')
-        }
+        const id: string = ctx.state.user.id.toString()
+        this.usersService.remove(id)
+        await sendMsg(ctx, msgDeleteUser)
     }
 
     @Hears('Старт')

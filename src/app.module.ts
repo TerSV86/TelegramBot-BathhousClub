@@ -8,9 +8,10 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { TasksService } from './tasks/tasks.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UsersModule } from './users/users.module'
-import { AddIsActiveMiddleware } from './middleware/addIsActiveMiddleware.middleware'
-import { BathhousModule } from './bathhous/bathhous.module';
+import { CreateStateUsersInCtxMiddleware } from './middleware/createStateUsersInCtx.middleware'
+import { BathhousModule } from './bathhous/bathhous.module'
 import { TaskModule } from './tasks/tasks.module'
+import { CreateStateUserInCtxForDelete } from './middleware/createStateUserInCtxForDelete.middleware'
 
 const sessions = new LocalSession({ database: 'session_db.json' })
 
@@ -22,12 +23,15 @@ const sessions = new LocalSession({ database: 'session_db.json' })
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
-                const addIsActive = new AddIsActiveMiddleware()
+                const addIsActive = new CreateStateUsersInCtxMiddleware()
+                const createStateUserInCtxForDelete =
+                    new CreateStateUserInCtxForDelete()
                 return {
                     token: configService.get<string>('TOKEN'),
                     middlewares: [
                         sessions.middleware(),
                         addIsActive.getMiddleware(),
+                        createStateUserInCtxForDelete.getMiddleware(),
                     ],
                 }
             },
@@ -57,7 +61,8 @@ const sessions = new LocalSession({ database: 'session_db.json' })
         BotActionsService,
         BotActionsUpdate,
         TasksService,
-        AddIsActiveMiddleware,
+        CreateStateUsersInCtxMiddleware,
+        CreateStateUserInCtxForDelete,
     ],
 })
 export class AppModule {}
