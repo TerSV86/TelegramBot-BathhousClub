@@ -15,14 +15,13 @@ export class UsersUpdate {
     constructor(
         @InjectBot() private readonly bot: Telegraf<Context>,
         private readonly usersService: UsersService,
-    ) {}
+    ) { }
 
     @Start()
     async startBot(@Ctx() ctx: UserJoinContext) {
-        if (ctx.state) {
-            await sendMsg(ctx, msgInitUser)
-            this.usersService.updateUserIsActive(ctx.state.user)
-        }
+
+        await sendMsg(ctx, msgInitUser)
+        this.usersService.updateUserIsActive(ctx.state.user)
     }
 
     @On('new_chat_members')
@@ -40,7 +39,7 @@ export class UsersUpdate {
 
     @On('left_chat_member')
     async onLeftChatMember(@Ctx() ctx: UserDeleteContext) {
-        const id: string = ctx.state.user.id.toString()
+        const id: string = ctx.state.user.id
         this.usersService.remove(id)
         await sendMsg(ctx, msgDeleteUser)
     }

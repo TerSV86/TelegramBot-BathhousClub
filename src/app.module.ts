@@ -4,7 +4,7 @@ import { TelegrafModule } from 'nestjs-telegraf'
 import * as LocalSession from 'telegraf-session-local'
 import { BotActionsService } from './bot/bot.update'
 import { BotActionsUpdate } from './bot/bot-actions.update'
-import { ScheduleModule } from '@nestjs/schedule'
+import { ScheduleModule, SchedulerRegistry } from '@nestjs/schedule'
 import { TasksService } from './tasks/tasks.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UsersModule } from './users/users.module'
@@ -13,6 +13,7 @@ import { BathhousModule } from './bathhous/bathhous.module'
 import { TaskModule } from './tasks/tasks.module'
 import { UserDeleteContextMiddleware } from './middleware/user-delete.middleware'
 import { UserJoinMiddleware } from './middleware/user-join.middleware'
+import { BathhousContextMiddlewaer } from './middleware/bathhous-context.middleware'
 
 const sessions = new LocalSession({ database: 'session_db.json' })
 
@@ -27,6 +28,8 @@ const sessions = new LocalSession({ database: 'session_db.json' })
                 const userCreate = new UserContextMiddleware()
                 const userDelete = new UserDeleteContextMiddleware()
                 const userJoin = new UserJoinMiddleware()
+                const scheduler = new SchedulerRegistry()
+                const bathhousCerate = new BathhousContextMiddlewaer(scheduler)
                 return {
                     token: configService.get<string>('TOKEN'),
                     middlewares: [
@@ -34,6 +37,7 @@ const sessions = new LocalSession({ database: 'session_db.json' })
                         userCreate.getMiddleware(),
                         userDelete.getMiddleware(),
                         userJoin.getMiddleware(),
+                        bathhousCerate.getMiddleware()
                     ],
                 }
             },
@@ -66,6 +70,7 @@ const sessions = new LocalSession({ database: 'session_db.json' })
         UserContextMiddleware,
         UserDeleteContextMiddleware,
         UserJoinMiddleware,
+        BathhousContextMiddlewaer,
     ],
 })
 export class AppModule {}

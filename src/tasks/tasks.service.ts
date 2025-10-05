@@ -3,7 +3,7 @@ import { Cron, SchedulerRegistry } from '@nestjs/schedule'
 import { CronJob } from 'cron'
 import { InjectBot } from 'nestjs-telegraf'
 import { actionButtons } from 'src/buttons/app.buttons'
-import { taskTime } from 'src/data/constants'
+import { taskTime, testTime } from 'src/data/constants'
 import { UsersService } from 'src/users/users.service'
 import { getBathhousDay } from 'src/utilits/get-bathhousday.utils'
 import { Context, Telegraf } from 'telegraf'
@@ -21,7 +21,7 @@ export class TasksService {
     // "10 * * * * *"
     // '0 21 * * 1,3,5,6'
     // '0 21 * * 7'
-    @Cron('0 21 * * 7')
+    @Cron('10 * * * * *')
     async handleCron() {
         // ответ: [ User { id: '688398003' }, User { id: '99033192' } ]
         const arrUserId = await this.usersService.findAllUserIds()
@@ -29,7 +29,7 @@ export class TasksService {
         arrUserId.forEach(async (user) => {
             const userId = user.id.toString()
             if (!tasks.has(userId)) {
-                this.addCronJob(userId, taskTime)
+                this.addCronJob(userId, testTime)
             }
         })
         console.log('reboot')

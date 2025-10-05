@@ -1,4 +1,4 @@
-export const testTime = '* * * * * *'
+export const testTime = '1 * * * * *'
 export const taskTime = '0 21 * * 1,3,5,6'
 
 export const msgCreatUser =
