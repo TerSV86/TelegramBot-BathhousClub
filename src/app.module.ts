@@ -8,10 +8,11 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { TasksService } from './tasks/tasks.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UsersModule } from './users/users.module'
-import { CreateStateUsersInCtxMiddleware } from './middleware/createStateUsersInCtx.middleware'
+import { UserContextMiddleware } from './middleware/user-context.middleware'
 import { BathhousModule } from './bathhous/bathhous.module'
 import { TaskModule } from './tasks/tasks.module'
-import { CreateStateUserInCtxForDelete } from './middleware/createStateUserInCtxForDelete.middleware'
+import { UserDeleteContextMiddleware } from './middleware/user-delete.middleware'
+import { UserJoinMiddleware } from './middleware/user-join.middleware'
 
 const sessions = new LocalSession({ database: 'session_db.json' })
 
@@ -23,15 +24,16 @@ const sessions = new LocalSession({ database: 'session_db.json' })
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
-                const addIsActive = new CreateStateUsersInCtxMiddleware()
-                const createStateUserInCtxForDelete =
-                    new CreateStateUserInCtxForDelete()
+                const userCreate = new UserContextMiddleware()
+                const userDelete = new UserDeleteContextMiddleware()
+                const userJoin = new UserJoinMiddleware()
                 return {
                     token: configService.get<string>('TOKEN'),
                     middlewares: [
                         sessions.middleware(),
-                        addIsActive.getMiddleware(),
-                        createStateUserInCtxForDelete.getMiddleware(),
+                        userCreate.getMiddleware(),
+                        userDelete.getMiddleware(),
+                        userJoin.getMiddleware(),
                     ],
                 }
             },
@@ -61,8 +63,9 @@ const sessions = new LocalSession({ database: 'session_db.json' })
         BotActionsService,
         BotActionsUpdate,
         TasksService,
-        CreateStateUsersInCtxMiddleware,
-        CreateStateUserInCtxForDelete,
+        UserContextMiddleware,
+        UserDeleteContextMiddleware,
+        UserJoinMiddleware,
     ],
 })
 export class AppModule {}

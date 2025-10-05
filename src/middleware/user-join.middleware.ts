@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { MyContext } from 'src/types/MyContext'
+import { UserJoinContext } from 'src/types/user-join-context.interface'
 import { Context, MiddlewareFn } from 'telegraf'
 
 @Injectable()
-export class CreateStateInitUserCtx {
-    getMiddleware(): MiddlewareFn<MyContext> {
+export class UserJoinMiddleware {
+    getMiddleware(): MiddlewareFn<UserJoinContext> {
         return async (ctx: Context, next) => {
             if (ctx.chat) {
                 const userId = ctx.chat.id

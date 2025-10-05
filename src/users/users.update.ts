@@ -6,6 +6,9 @@ import { Context, Telegraf } from 'telegraf'
 import { button } from '../buttons/app.buttons'
 import { sendMsg } from 'src/utilits/sendMsg.utels'
 import { msgCreatUser, msgDeleteUser, msgInitUser } from 'src/data/constants'
+import { UserJoinContext } from 'src/types/user-join-context.interface'
+import { UserContext } from 'src/types/user-context.interface'
+import { UserDeleteContext } from 'src/types/user-delete.interface'
 
 @Update()
 export class UsersUpdate {
@@ -15,15 +18,15 @@ export class UsersUpdate {
     ) {}
 
     @Start()
-    async startBot(@Ctx() ctx: Context) {
-        if (ctx.chat) {
+    async startBot(@Ctx() ctx: UserJoinContext) {
+        if (ctx.state) {
             await sendMsg(ctx, msgInitUser)
             this.usersService.updateUserIsActive(ctx.state.user)
         }
     }
 
     @On('new_chat_members')
-    async onCreateUsers(@Ctx() ctx: Context) {
+    async onCreateUsers(@Ctx() ctx: UserContext) {
         // если в апдейте есть новые участники
         if (ctx.state) {
             const arrUsers = ctx.state.users
@@ -36,7 +39,7 @@ export class UsersUpdate {
     }
 
     @On('left_chat_member')
-    async onLeftChatMember(@Ctx() ctx: Context) {
+    async onLeftChatMember(@Ctx() ctx: UserDeleteContext) {
         const id: string = ctx.state.user.id.toString()
         this.usersService.remove(id)
         await sendMsg(ctx, msgDeleteUser)
