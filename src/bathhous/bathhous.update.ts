@@ -3,8 +3,6 @@ import { BathhousService } from './bathhous.service'
 import { UpdateBathhousDto } from './dto/update-bathhous.dto'
 import { Action, Ctx, InjectBot, Update } from 'nestjs-telegraf'
 import { Context, Telegraf } from 'telegraf'
-import { Update as UpdateContext } from 'telegraf/typings/core/types/typegram'
-import { getBathhousDay } from 'src/utilits/get-bathhousday.utils'
 import { SchedulerRegistry } from '@nestjs/schedule'
 import { BathhousContext } from 'src/types/bathhous-context.inteface'
 
@@ -14,7 +12,7 @@ export class BathhousUpdate {
         @InjectBot() private readonly bot: Telegraf<Context>,
         private readonly bathhousService: BathhousService,
         private schedulerRegistry: SchedulerRegistry,
-    ) { }
+    ) {}
 
     @Action('yes')
     async yesAction(@Ctx() ctx: BathhousContext) {
@@ -27,6 +25,15 @@ export class BathhousUpdate {
     @Action('undecided')
     async noAction(@Ctx() ctx: BathhousContext) {
         const bathhous = ctx.state
+        bathhous.is_Active = !bathhous.is_Active
+        if (
+            'callback_query' in ctx.update &&
+            'data' in ctx.update.callback_query &&
+            'on' === ctx.update.callback_query.data
+        ) {
+            const task = this.schedulerRegistry.getCronJob(bathhous.userId)
+            task.stop()
+        }
         return this.bathhousService.create(bathhous)
     }
 

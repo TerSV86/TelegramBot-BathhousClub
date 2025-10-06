@@ -19,7 +19,6 @@ export class UsersUpdate {
 
     @Start()
     async startBot(@Ctx() ctx: UserJoinContext) {
-
         await sendMsg(ctx, msgInitUser)
         this.usersService.updateUserIsActive(ctx.state.user)
     }

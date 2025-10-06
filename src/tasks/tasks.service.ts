@@ -15,7 +15,7 @@ export class TasksService {
         @InjectBot() private readonly bot: Telegraf<Context>,
         private readonly usersService: UsersService,
         private schedulerRegistry: SchedulerRegistry,
-    ) {}
+    ) { }
 
     // '* * * * * *'
     // "10 * * * * *"
@@ -25,7 +25,10 @@ export class TasksService {
     async handleCron() {
         // ответ: [ User { id: '688398003' }, User { id: '99033192' } ]
         const arrUserId = await this.usersService.findAllUserIds()
-        const tasks = await this.schedulerRegistry.getCronJobs()
+        console.log('task', arrUserId)
+        if (!arrUserId) return
+        const tasks = this.schedulerRegistry.getCronJobs()
+        console.log('task', tasks)
         arrUserId.forEach(async (user) => {
             const userId = user.id.toString()
             if (!tasks.has(userId)) {
@@ -38,6 +41,7 @@ export class TasksService {
     async addCronJob(name: string, time: string) {
         const task = new CronJob(`${time}`, async () => {
             const user = await this.usersService.findUser(name)
+            if (!user) return
             const bathhousDay = getBathhousDay()
             if (user.is_Active) {
                 await this.bot.telegram.sendMessage(

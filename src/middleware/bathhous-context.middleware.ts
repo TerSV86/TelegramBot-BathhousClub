@@ -19,23 +19,7 @@ export class BathhousContextMiddlewaer {
                     date,
                     is_Active: true,
                 }
-                if (
-                    'data' in ctx.update.callback_query &&
-                    'on' === ctx.update.callback_query.data
-                ) {
-                    const task = this.schedulerRegistry.getCronJob(
-                        bathhous.userId,
-                    )
-                    task.stop()
-                }
-                console.log('Bathous', ctx.update)
                 Object.assign(ctx.state, bathhous) // ctx.state = bathhous выкидывает ошибку: ctx.state защищен от записи
-                const jobs = this.schedulerRegistry.getCronJobs()
-                console.log('🟡 Все доступные cron-задачи:', [...jobs.keys()])
-                const task = await this.schedulerRegistry.getCronJob(
-                    bathhous.userId,
-                )
-                task.stop()
                 await next()
             } else {
                 await next()

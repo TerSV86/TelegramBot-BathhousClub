@@ -4,19 +4,33 @@ import { UpdateBathhousDto } from './dto/update-bathhous.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Bathhous } from './entities/bathhous.entity'
+import { SchedulerRegistry } from '@nestjs/schedule'
 
 @Injectable()
 export class BathhousService {
     constructor(
         @InjectRepository(Bathhous)
         private readonly bathhousRepository: Repository<Bathhous>,
+        private schedulerRegistry: SchedulerRegistry,
     ) {}
-    create(createBathhousDto: CreateBathhousDto) {
-        console.log('BathhousService', createBathhousDto)
-        const bathhous = this.bathhousRepository.create({
-            ...createBathhousDto,
+    async create(createBathhousDto: CreateBathhousDto) {
+        const bathhous = await this.bathhousRepository.findOne({
+            where: {
+                userId: createBathhousDto.userId,
+                date: createBathhousDto.date,
+            },
         })
-        return this.bathhousRepository.save(bathhous)
+        console.log('BathhousService', bathhous)
+        if (!bathhous) {
+            const bathhous = this.bathhousRepository.create({
+                ...createBathhousDto,
+            })
+            const jobs = this.schedulerRegistry.getCronJobs()
+            console.log('🟡 Все доступные cron-задачи:', [...jobs.keys()])
+            const task = this.schedulerRegistry.getCronJob(bathhous.userId)
+            task.stop()
+            return this.bathhousRepository.save(bathhous)
+        }
     }
 
     findAll() {
