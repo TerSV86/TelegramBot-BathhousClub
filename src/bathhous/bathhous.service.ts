@@ -14,23 +14,33 @@ export class BathhousService {
         private schedulerRegistry: SchedulerRegistry,
     ) {}
     async create(createBathhousDto: CreateBathhousDto) {
-        const bathhous = await this.bathhousRepository.findOne({
+        const existingBathhous = await this.bathhousRepository.findOne({
             where: {
                 userId: createBathhousDto.userId,
                 date: createBathhousDto.date,
             },
         })
-        console.log('BathhousService', bathhous)
-        if (!bathhous) {
-            const bathhous = this.bathhousRepository.create({
-                ...createBathhousDto,
-            })
-            const jobs = this.schedulerRegistry.getCronJobs()
-            console.log('🟡 Все доступные cron-задачи:', [...jobs.keys()])
-            const task = this.schedulerRegistry.getCronJob(bathhous.userId)
-            task.stop()
-            return this.bathhousRepository.save(bathhous)
+        if (existingBathhous) {
+            throw new Error('Пользователь уже дал согласие на участие')
         }
+
+        const newBathhous = this.bathhousRepository.create({
+            ...createBathhousDto,
+        })
+
+        const jobs = this.schedulerRegistry.getCronJobs()
+        console.log('🟡 Все доступные cron-задачи:', [...jobs.keys()])
+
+        try {
+            const task = this.schedulerRegistry.getCronJob(newBathhous.userId)
+            task.stop()
+            return this.bathhousRepository.save(newBathhous)
+        } catch (error) {
+            console.warn(
+                `Cron задача для пользователя ${createBathhousDto.userId} не найдена`,
+            )
+        }
+        return this.bathhousRepository.save(newBathhous)
     }
 
     findAll() {
