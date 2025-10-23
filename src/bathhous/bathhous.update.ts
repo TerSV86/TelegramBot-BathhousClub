@@ -17,7 +17,9 @@ export class BathhousUpdate {
     @Action('yes')
     async yesAction(@Ctx() ctx: BathhousContext) {
         const bathhous = ctx.state
-        await ctx.answerCbQuery('Мы будем рады тебя видеть')
+        console.log("yes", bathhous);
+        
+        // await ctx.answerCbQuery('Мы будем рады тебя видеть')
         this.bathhousService.create(bathhous)
     }
 

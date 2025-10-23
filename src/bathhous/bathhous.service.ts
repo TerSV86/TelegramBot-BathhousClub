@@ -14,6 +14,8 @@ export class BathhousService {
         private schedulerRegistry: SchedulerRegistry,
     ) {}
     async create(createBathhousDto: CreateBathhousDto) {
+        console.log('create', createBathhousDto)
+        
         const existingBathhous = await this.bathhousRepository.findOne({
             where: {
                 userId: createBathhousDto.userId,

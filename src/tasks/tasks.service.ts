@@ -21,7 +21,7 @@ export class TasksService {
     // "10 * * * * *"
     // '0 21 * * 1,3,5,6'
     // '0 21 * * 7'
-    @Cron('10 * * * * *')
+    @Cron('0 21 * * 1,3,5,6')
     async handleCron() {
         // ответ: [ User { id: '688398003' }, User { id: '99033192' } ]
         const arrUserId = await this.usersService.findAllUserIds()
